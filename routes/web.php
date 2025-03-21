@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Requests\CreateUserRequest;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,6 +20,16 @@ Route::get('/users', function (Request $request) {
   }
   return view('users.index', compact('users'));
 })->name('users.index');
+
+Route::get('/users/create', function () {
+  $positions = Position::get();
+
+  return view('users.create', compact('positions'));
+})->name('users.create');
+
+Route::post('/users/store', function (CreateUserRequest $request) {
+  dd($request);
+})->name('users.store');
 
 // Positions
 Route::get('/positions', function () {
