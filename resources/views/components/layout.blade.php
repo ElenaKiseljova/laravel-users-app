@@ -25,14 +25,23 @@
   class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
   <header class="flex justify-between gap-x-5 w-full max-w-screen-xl text-sm mb-6 empty:hidden">
     @if (!request()->routeIs('main'))
-      <a href="{{ route('main') }}" class="hover:opacity-75 flex flx-row gap-x-1 align-middle">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-          stroke="currentColor" class="size-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-        </svg>
+      <div class="flex justify-center gap-x-5 w-full">
+        @if (!request()->routeIs('users.index'))
+          <a href="{{ route('users.index') }}" class="link link-secondary hover:opacity-75 text-center">
+            <span class="text-xl">Users</span>
+          </a>
+        @endif
 
-        <span class="text-xl">Main</span>
-      </a>
+        <a href="{{ route('main') }}" class="link hover:opacity-75 text-center">
+          <span class="text-xl">Main</span>
+        </a>
+
+        @if (!request()->routeIs('positions.index'))
+          <a href="{{ route('positions.index') }}" class="link link-primary hover:opacity-75 text-center">
+            <span class="text-xl">Positions</span>
+          </a>
+        @endif
+      </div>
     @endif
 
     @if (Route::has('login'))
