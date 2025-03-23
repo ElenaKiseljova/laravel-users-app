@@ -22,7 +22,9 @@
       </div>
     </td>
     <td>
-      <a href="#" class="btn btn-sm rounded-2xl">{{ $user->position->name }}</a>
+      @if ($user->position->name)
+        <a href="#" class="btn btn-sm rounded-2xl">{{ $user->position->name }}</a>
+      @endif
     </td>
     <td>{{ $user->email }}</td>
     <td>{{ $user->phone }}</td>

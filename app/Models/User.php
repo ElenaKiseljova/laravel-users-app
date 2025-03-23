@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable // implements MustVerifyEmail
 {
   /** @use HasFactory<\Database\Factories\UserFactory> */
-  use HasFactory, Notifiable;
+  use HasApiTokens, HasFactory, Notifiable;
 
   /**
    * The attributes that are mass assignable.
@@ -52,7 +53,7 @@ class User extends Authenticatable
 
   public function position()
   {
-    return $this->belongsTo(Position::class);
+    return $this->belongsTo(Position::class)->withDefault();
   }
 
   public static function makeDirectory()
@@ -62,5 +63,16 @@ class User extends Authenticatable
     Storage::makeDirectory($directory);
 
     return $directory;
+  }
+
+  public static function updatePhotoUrl(User &$user)
+  {
+    if ($user->photo) {
+      if (Storage::exists($user->photo)) {
+        $user->photo = Storage::url($user->photo);
+      }
+    } else {
+      $user->photo = Storage::url('/users/user-default.jpg');
+    }
   }
 }

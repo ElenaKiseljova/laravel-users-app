@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use App\Http\Requests\UserRequest;
 use App\Models\Position;
 use App\Models\User;
@@ -12,82 +13,91 @@ Route::get('/', function () {
   return view('welcome');
 })->name('main');
 
-// Users
-Route::get('/users', function (Request $request) {
-  $users = User::with('position')->orderBy('created_at', 'desc')->paginate(6);
+Route::middleware(['auth', 'verified'])->group(function () {
+  Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+  Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+  Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-  // Modify image url
-  $users->through(function (User $user) {
-    if (Storage::exists($user->photo)) {
-      $user->photo = Storage::url($user->photo);
+
+Route::middleware(['auth', 'verified'])->group(function () {
+  // Users
+  Route::get('/users', function (Request $request) {
+    $users = User::with('position')->orderBy('created_at', 'desc')->paginate(6);
+
+    // Modify image url
+    $users->through(function (User $user) {
+      $user->updatePhotoUrl($user);
+
+      return $user;
+    });
+
+    if ($request->ajax()) {
+      return Blade::render('<x-user-items :users="$users" />', ['users' => $users]);
     }
 
-    return $user;
-  });
+    return view('users.index', compact('users'));
+  })->name('users.index');
 
-  if ($request->ajax()) {
-    return Blade::render('<x-user-items :users="$users" />', ['users' => $users]);
-  }
+  Route::get('/users/create', function () {
+    $user = new User();
 
-  return view('users.index', compact('users'));
-})->name('users.index');
+    $positions = Position::get();
 
-Route::get('/users/create', function () {
-  $user = new User();
+    return view('users.create', compact('user', 'positions'));
+  })->name('users.create');
 
-  $positions = Position::get();
+  Route::post('/users/store', function (UserRequest $request) {
+    User::create($request->getData());
 
-  return view('users.create', compact('user', 'positions'));
-})->name('users.create');
+    return to_route('users.index')->with('message', 'User has been created successfully');
+  })->name('users.store');
 
-Route::post('/users/store', function (UserRequest $request) {
-  User::create($request->getData());
+  Route::get('/users/{user}/edit', function (User $user) {
+    $positions = Position::get();
 
-  return to_route('users.index')->with('message', 'User has been created successfully');
-})->name('users.store');
+    $user->updatePhotoUrl($user);
 
-Route::get('/users/{user}/edit', function (User $user) {
-  $positions = Position::get();
+    return view('users.edit', compact('user', 'positions'));
+  })->name('users.edit');
 
-  // Modify image url
-  if (Storage::exists($user->photo)) {
-    $user->photo = Storage::url($user->photo);
-  }
+  Route::put('/users/{user}', function (UserRequest $request, User $user) {
+    $user->update($request->getData());
 
-  return view('users.edit', compact('user', 'positions'));
-})->name('users.edit');
+    return to_route('users.index')->with('message', 'User has been updated successfully');
+  })->name('users.update');
 
-Route::put('/users/{user}', function (UserRequest $request, User $user) {
-  $user->update($request->getData());
+  Route::delete('/users/{user}', function (User $user) {
+    // Delete user photo from Storage
+    if ($user->photo && Storage::exists($user->photo)) {
+      Storage::delete($user->photo);
+    }
 
-  return to_route('users.index')->with('message', 'User has been updated successfully');
-})->name('users.update');
+    // Delete User
+    $user->delete();
 
-Route::delete('/users/{user}', function (User $user) {
-  // Delete user photo from Storage
-  if (Storage::exists($user->photo)) {
-    Storage::delete($user->photo);
-  }
+    return back()->with('message', 'User has been removed successfully');
+  })->name('users.destroy');
 
-  // Delete User
-  $user->delete();
+  Route::get('/users/{user}', function (User $user) {
+    // Modify image url
+    $user->updatePhotoUrl($user);
 
-  return back()->with('message', 'User has been removed successfully');
-})->name('users.destroy');
+    return view('users.show', compact('user'));
+  })->name('users.show');
 
-Route::get('/users/{user}', function (User $user) {
-  // Modify image url
-  if (Storage::exists($user->photo)) {
-    $user->photo = Storage::url($user->photo);
-  }
+  // Positions
+  Route::get('/positions', function () {
+    $positions = Position::withCount('users')->get();
 
-  return view('users.show', compact('user'));
-})->name('users.show');
+    return view('positions.index', compact('positions'));
+  })->name('positions.index');
+});
 
 
-// Positions
-Route::get('/positions', function () {
-  $positions = Position::withCount('users')->get();
 
-  return view('positions.index', compact('positions'));
-})->name('positions.index');
+
+
+
+
+require __DIR__ . '/auth.php';

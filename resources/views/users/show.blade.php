@@ -7,7 +7,11 @@
         <div class=" space-y-2">
           <h4 class=" text-2xl font-medium text-gray-400">Position</h4>
 
-          <div class="badge badge-xl badge-soft badge-secondary">{{ $user->position->name }}</div>
+          @if ($user->position->name)
+            <div class="badge badge-xl badge-soft badge-secondary">{{ $user->position->name }}</div>
+          @else
+            -
+          @endif
         </div>
 
         <div class=" space-y-2">
