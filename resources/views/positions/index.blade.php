@@ -12,9 +12,9 @@
             </th> --}}
             <th>Name</th>
             <th>Users count</th>
+            {{-- <th></th>
             <th></th>
-            <th></th>
-            <th></th>
+            <th></th> --}}
           </tr>
         </thead>
         <tbody>
@@ -26,9 +26,9 @@
             {{-- <th></th> --}}
             <th>Name</th>
             <th>Users count</th>
+            {{-- <th></th>
             <th></th>
-            <th></th>
-            <th></th>
+            <th></th> --}}
           </tr>
         </tfoot>
       </table>
