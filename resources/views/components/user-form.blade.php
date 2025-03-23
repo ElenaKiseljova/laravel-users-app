@@ -13,13 +13,19 @@
   <fieldset class="fieldset">
     <legend class="fieldset-legend">Profile Photo</legend>
     @if ($user->photo)
-      <div class="w-full">
-        <img src="{{ $user->photo }}" alt="{{ $user->name }}" class=" w-80 max-w-full p-1 shadow-sm" />
+      <div class=" w-80 h-80 mb-2">
+        <img src="{{ $user->photo }}" alt="{{ $user->name }}"
+          class="file-image w-full h-full object-cover object-center p-1 shadow-sm" />
       </div>
     @endif
 
-    <input type="file" class="file-input file-input-primary w-full @error('photo') input-error @enderror"
+    <p class="text-gray-400 text-xs mb-0.5">
+      The file must be no more than 5 MB, have a jpg/jpeg extension.
+    </p>
+
+    <input type="file" class="file-input file-input-primary w-full @error('photo') file-input-error @enderror"
       name="photo" accept="image/*" />
+
     @error('photo')
       <p class="fieldset-label text-error">{{ $message }}</p>
     @enderror
@@ -58,7 +64,7 @@
   </fieldset>
 
   <fieldset class="fieldset">
-    <legend class="fieldset-legend">Password</legend>
+    <legend class="fieldset-legend">{{ $user->exists ? 'New ' : '' }}Password</legend>
     <input type="password" class="input w-full @error('password') input-error @enderror" name="password" />
     @error('password')
       <p class="fieldset-label text-error">{{ $message }}</p>
@@ -66,9 +72,13 @@
   </fieldset>
 
   <fieldset class="fieldset">
-    <legend class="fieldset-legend">Confirm password</legend>
+    <legend class="fieldset-legend">Confirm {{ $user->exists ? 'new' : '' }} password</legend>
     <input type="password" class="input w-full" name="password_confirmation" />
   </fieldset>
+
+  @if ($user->exists)
+    <input type="hidden" name="user_id" value="{{ $user->id }}">
+  @endif
 
   <button class="btn btn-primary mt-4 w-full">{{ $user->exists ? 'Update' : 'Create' }}</button>
 </x-form>
