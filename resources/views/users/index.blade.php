@@ -10,6 +10,8 @@
     </a>
   </div>
 
+  <x-flash-message />
+
   @if ($users->count())
     <div class="overflow-x-auto">
       <table class="table">
