@@ -23,10 +23,10 @@
       The file must be no more than 5 MB, have a jpg/jpeg extension.
     </p>
 
-    <input type="file" class="file-input file-input-primary w-full @error('photo') file-input-error @enderror"
-      name="photo" accept="image/*" />
+    <input type="file" class="file-input file-input-primary w-full @error('file') file-input-error @enderror"
+      name="file" accept="image/*" />
 
-    @error('photo')
+    @error('file')
       <p class="fieldset-label text-error">{{ $message }}</p>
     @enderror
   </fieldset>

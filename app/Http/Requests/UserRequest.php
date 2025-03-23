@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Media;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
@@ -64,13 +66,18 @@ class UserRequest extends FormRequest
   {
     $data = $this->validated();
 
-    // Files
-    $directory = User::makeDirectory();;
-
     // Photo
-    if ($this->hasFile('photo')) {
-      // TO DO: optimize and crop image before save
-      $data['photo'] = $this->file('photo')->store($directory);
+    if ($this->hasFile('file')) {
+      // With optimization
+      $media = new Media();
+      $media->saveImage($this);
+      $media->optimizeImage();
+
+      $data['photo'] = $media->getImagePath();
+
+      // Without optimization
+      // $directory = User::makeDirectory();
+      // $data['photo'] = $this->file('photo')->store($directory);
     }
 
     // Password
